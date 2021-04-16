@@ -173,6 +173,7 @@ const changeActiveStatus = async (passport, status) => {
   }
 };
 
+// filter with one query and many fields
 const filterWithQuery = async (query, fields) => {
   if (typeof query === "undefined" || !fields) throw { message: "you need to pass a query and the fields to search in", code: 406 };
   try {
@@ -191,6 +192,7 @@ const filterWithQuery = async (query, fields) => {
   }
 };
 
+// filter with different field queries
 const filterWithParams = async (fields) => {
   if (!fields) throw { message: "you need to pass the fields to search in", code: 406 };
   try {
