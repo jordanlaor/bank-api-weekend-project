@@ -1,8 +1,7 @@
 const fs = require("fs").promises;
 
-const USERS_JSON = `${__dirname}/src/bank.json`;
+const USERS_JSON = `${__dirname}/bank.json`;
 
-// deposit money
 // update credit
 // withdraw money
 // transfer money
@@ -22,7 +21,7 @@ const getUserByPassport = async (passport) => {
   if (!passport) throw { message: "you need to pass a passport id", code: 406 };
   try {
     const users = JSON.parse(await getAllUsers());
-    const user = users.find((user) => user.passport === passport);
+    const user = users.find((user) => String(user.passport) === String(passport));
     if (user) return user;
     throw { message: "no such user was found", code: 404 };
   } catch (error) {
@@ -39,8 +38,10 @@ const createUser = async ({ passport, isActive = true, credit = 0, cash = 0 }) =
   if (Number.isNaN(cash)) throw { message: `cash needs to be a number`, code: 406 };
   try {
     const users = JSON.parse(await getAllUsers());
-    if (users.find((user) => user.passport === passport))
+    if (users.find((user) => String(user.passport) === String(passport))) {
+      console.log("duplicate");
       throw { message: `user with passport id ${passport} already exist, can't have duplicates`, code: 400 };
+    }
     const user = { passport, isActive: Boolean(isActive), credit, cash };
     users.push(user);
     try {
@@ -49,7 +50,29 @@ const createUser = async ({ passport, isActive = true, credit = 0, cash = 0 }) =
     } catch (error) {
       throw { message: error.message, code: 500 };
     }
-  } catch (error) {}
+  } catch (error) {
+    throw { message: error.message, code: 500 };
+  }
 };
 
-module.exports = { getAllUsers, getUserByPassport, createUser };
+// deposit money
+const depositMoney = async (passport, amount) => {
+  if (!passport) throw { message: "you need to pass a passport id", code: 406 };
+  amount = Number(amount);
+  if (Number.isNaN(amount)) throw { message: `amount needs to be a number`, code: 406 };
+  try {
+    const users = JSON.parse(await getAllUsers());
+    const user = users.find((user) => String(user.passport) === String(passport));
+    user.cash += amount;
+    try {
+      await fs.writeFile(USERS_JSON, JSON.stringify(users));
+      return user;
+    } catch (error) {
+      throw { message: error.message, code: 500 };
+    }
+  } catch (error) {
+    throw { message: error.message, code: 500 };
+  }
+};
+
+module.exports = { getAllUsers, getUserByPassport, createUser, depositMoney };

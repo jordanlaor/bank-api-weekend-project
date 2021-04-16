@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllUsers, getUserByPassport, createUser } = require("./utils");
+const { getAllUsers, getUserByPassport, createUser, depositMoney } = require("./utils");
 
 const app = express();
 app.use(express.json());
@@ -41,7 +41,14 @@ app.put("/api/users/:passport/activate");
 app.put("/api/users/:passport/deactivate");
 
 // deposit money
-app.put("/api/account/:passport/deposit");
+app.put("/api/account/:passport/deposit", async (req, res) => {
+  try {
+    const user = await depositMoney(req.params.passport, req.body.amount);
+    res.status(200).send({ ...user });
+  } catch (error) {
+    res.status(error.code).send({ message: error.message });
+  }
+});
 
 // update credit
 app.put("/api/account/:passport/credit");
