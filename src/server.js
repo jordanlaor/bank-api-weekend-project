@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllUsers } = require("./utils");
+const { getAllUsers, getUserByPassport, createUser } = require("./utils");
 
 const app = express();
 app.use(express.json());
@@ -17,7 +17,7 @@ app.get("/api/users", async (req, res) => {
 // get user by passport
 app.get("/api/users/:passport", async (req, res) => {
   try {
-    const user = await getMovieById(req.params.passport);
+    const user = await getUserByPassport(req.params.passport);
     res.status(200).send({ ...user });
   } catch (error) {
     res.status(error.code).send({ message: error.message });
@@ -25,7 +25,20 @@ app.get("/api/users/:passport", async (req, res) => {
 });
 
 // add a user
-app.post("/api/users/:passport", async (req, res) => {});
+app.post("/api/users", async (req, res) => {
+  try {
+    const user = await createUser(req.body);
+    res.status(201).send({ ...user });
+  } catch (error) {
+    res.status(error.code).send({ message: error.message });
+  }
+});
+
+// activate a user
+app.put("/api/users/:passport/activate");
+
+// deactivate a user
+app.put("/api/users/:passport/deactivate");
 
 // deposit money
 app.put("/api/account/:passport/deposit");
