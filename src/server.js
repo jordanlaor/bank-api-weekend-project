@@ -1,22 +1,43 @@
-const fs = require("fs").promises;
 const express = require("express");
-const {} = require("./utils");
+const { getAllUsers } = require("./utils");
 
 const app = express();
 app.use(express.json());
 
 // get all users
-app.get("/api/users", async (req, res) => {});
+app.get("/api/users", async (req, res) => {
+  try {
+    const users = await getAllUsers();
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(error.code).send({ message: error.message });
+  }
+});
+
+// get user by passport
+app.get("/api/users/:passport", async (req, res) => {
+  try {
+    const user = await getMovieById(req.params.passport);
+    res.status(200).send({ ...user });
+  } catch (error) {
+    res.status(error.code).send({ message: error.message });
+  }
+});
 
 // add a user
-app.post("/api/users", async (req, res) => {});
+app.post("/api/users/:passport", async (req, res) => {});
 
 // deposit money
+app.put("/api/account/:passport/deposit");
+
 // update credit
+app.put("/api/account/:passport/credit");
+
 // withdraw money
+app.put("/api/account/:passport/withdraw");
+
 // transfer money
-// user by passport
-// get all users
+app.put("/api/account/transfer/:from/:to");
 
 const PORT = 3000;
 app.listen(PORT, () => console.log("listening on port 3000..."));
