@@ -29,9 +29,9 @@ const getUserByPassport = async (passport) => {
 const createUser = async ({ passport, isActive = true, credit = 0, cash = 0 }) => {
   if (!passport) throw { message: "you need to pass a passport id", code: 406 };
   credit = Number(credit);
-  if (Number.isNaN(credit)) throw { message: `credit needs to be a number`, code: 406 };
+  if (Number.isNaN(credit) || credit < 0) throw { message: `credit needs to be a number greater than or equal to zero`, code: 406 };
   cash = Number(cash);
-  if (Number.isNaN(cash)) throw { message: `cash needs to be a number`, code: 406 };
+  if (Number.isNaN(cash) || cash < -credit) throw { message: `cash needs to be a number and cant be lower than your credit`, code: 406 };
   try {
     const users = JSON.parse(await getAllUsers());
     if (users.find((user) => String(user.passport) === String(passport))) {
